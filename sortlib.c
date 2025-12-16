@@ -135,7 +135,7 @@ int insertion_sort_count(int a[], int n)
          j--;
          comparisons++;
       }
-      if (j >= 0) comparisons++; // for the last comparison when loop exits
+      if (j >= 0) comparisons++; 
       a[j + 1] = key;
    }
    return comparisons;
@@ -161,7 +161,7 @@ int selection_sort_count(int a[], int n)
    return comparisons;
 }
 
-// Original functions without counting (for compatibility)
+
 void merge(int a[], int l, int m, int r)
 {
    int n1 = m - l + 1;

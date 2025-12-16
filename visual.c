@@ -232,19 +232,19 @@ void SortList(HWND hwnd) {
     int selected = (int)SendMessage(hwndCombo, CB_GETCURSEL, 0, 0);
     
     switch(selected) {
-        case 0: // Merge Sort
+        case 0: 
             iterations = merge_sort_count(temp_arr, 0, n - 1);
             break;
-        case 1: // Quick Sort
+        case 1: 
             iterations = quicksort_count(temp_arr, 0, n - 1);
             break;
-        case 2: // Bubble Sort
+        case 2:
             iterations = bubble_sort_count(temp_arr, n);
             break;
-        case 3: // Insertion Sort
+        case 3: 
             iterations = insertion_sort_count(temp_arr, n);
             break;
-        case 4: // Selection Sort
+        case 4: 
             iterations = selection_sort_count(temp_arr, n);
             break;
     }
