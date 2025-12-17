@@ -204,18 +204,16 @@ void GenerateRandomList(HWND hwnd) {
     if (input_buffer[0] != '\0') {
         count = atoll(input_buffer);
         if (count <= 0) count = 1;
-        if (count > 1000000) count = 1000000; // ограничение
+        if (count > 1000000) count = 1000000; 
     } else {
-        count = 10 + rand() % 10; // случайное значение по умолчанию
+        count = 10 + rand() % 10; 
     }
     
     int *numbers = malloc(count * sizeof(int));
-    // Более быстрая генерация случайных чисел
+
     for(long long i = 0; i < count; i++) {
         numbers[i] = rand() % 1000;
     }
-    
-    // Более эффективное формирование строки
     char *buffer = malloc((count * 8 + count - 1 + 1) * sizeof(char));
     char *ptr = buffer;
     
@@ -262,7 +260,7 @@ int ValidateInput(const char* input) {
 }
 
 void SortList(HWND hwnd) {
-    char input_buffer[1024 * 100]; // Увеличенный буфер для 1000000 чисел
+    char input_buffer[1024 * 100]; 
     GetWindowText(hwndInput, input_buffer, sizeof(input_buffer));
     
     if (!ValidateInput(input_buffer)) {
@@ -317,7 +315,7 @@ void SortList(HWND hwnd) {
             merge_sort_count(temp_arr, 0, n - 1);
             break;
         case 1: 
-            quicksort_count(temp_arr, 0, n - 1);
+            quicksort_count(temp_arr,  n );
             break;
         case 2:
             bubble_sort_count(temp_arr, n);

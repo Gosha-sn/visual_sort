@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h> 
+#include <time.h>
 static int merge_count_calls = 0;
 static int quicksort_partition_calls = 0;
 static int bubble_comparisons = 0;
@@ -28,11 +28,13 @@ int merge_count(int a[], int l, int m, int r)
       merge_count_calls++;
    }
 
-   while (i < n1) {
+   while (i < n1)
+   {
       a[k++] = left[i++];
       merge_count_calls++;
    }
-   while (j < n2) {
+   while (j < n2)
+   {
       a[k++] = right[j++];
       merge_count_calls++;
    }
@@ -81,31 +83,55 @@ double partition_count(int a[], int l, int r)
    return seconds;
 }
 
-double quicksort_count(int a[], int l, int r)
+
+
+double quicksort_count(int arr[], int n)
 {
    clock_t start = clock();
-   if (l >= r)
+   if (n <= 1)
       return 0;
-      
-   int before_calls = quicksort_partition_calls;
-   int p = a[r];
-   int i = l;
-   for (int j = l; j < r; j++)
+
+   int *stack = malloc(n * sizeof(int)); 
+   int top = -1;
+   int low = 0, high = n - 1;
+
+   stack[++top] = low;
+   stack[++top] = high;
+
+   while (top >= 0)
    {
-      if (a[j] <= p)
+      high = stack[top--];
+      low = stack[top--];
+
+      int pivot = arr[high];
+      int i = low - 1;
+
+      for (int j = low; j < high; j++)
       {
-         int t = a[i];
-         a[i] = a[j];
-         a[j] = t;
-         i++;
+         if (arr[j] <= pivot)
+         {
+            int temp = arr[++i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+         }
       }
-      quicksort_partition_calls++;
+      int temp = arr[i + 1];
+      arr[i + 1] = arr[high];
+      arr[high] = temp;
+      int pi = i + 1;
+
+      if (pi - 1 > low)
+      {
+         stack[++top] = low;
+         stack[++top] = pi - 1;
+      }
+      if (pi + 1 < high)
+      {
+         stack[++top] = pi + 1;
+         stack[++top] = high;
+      }
    }
-   a[r] = a[i];
-   a[i] = p;
-   
-   int left_iter = quicksort_count(a, l, i - 1);
-   int right_iter = quicksort_count(a, i + 1, r);
+   free(stack);
    clock_t end = clock();
    double seconds = (double)(end - start) / CLOCKS_PER_SEC;
    return seconds;
@@ -147,7 +173,8 @@ double insertion_sort_count(int a[], int n)
          j--;
          comparisons++;
       }
-      if (j >= 0) comparisons++; 
+      if (j >= 0)
+         comparisons++;
       a[j + 1] = key;
    }
    clock_t end = clock();
@@ -164,7 +191,8 @@ double selection_sort_count(int a[], int n)
       int min_idx = i;
       for (int j = i + 1; j < n; j++)
       {
-         if (a[j] < a[min_idx]) {
+         if (a[j] < a[min_idx])
+         {
             min_idx = j;
          }
          comparisons++;
@@ -177,8 +205,6 @@ double selection_sort_count(int a[], int n)
    double seconds = (double)(end - start) / CLOCKS_PER_SEC;
    return seconds;
 }
-
-
 
 // int main(){
 //    srand(time(NULL));
