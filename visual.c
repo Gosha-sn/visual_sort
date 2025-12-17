@@ -13,7 +13,7 @@
 #define ID_ITERATIONS 105
 
 HINSTANCE hInst;
-HWND hwndCombo, hwndInput, hwndOutput, hwndIterations;
+HWND hwndCombo, hwndInput,hwndInputVal, hwndOutput, hwndIterations;
 HBRUSH g_hBrush = NULL;
 HBRUSH g_editBrush = NULL;
 
@@ -81,7 +81,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
                 220, 10, 350, 25,
                 hwnd, (HMENU)ID_INPUT, hInst, NULL
             );
-
+            hwndInputVal = CreateWindow(
+                "EDIT", "",
+                WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+                220, 40, 100, 25,
+                hwnd, (HMENU)ID_INPUT, hInst, NULL
+            );
             CreateWindow(
                 "BUTTON", "Generate",
                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
@@ -165,7 +170,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 void GenerateRandomList(HWND hwnd) {
     char buffer[256];
-    int count = 10 + rand() % 10; 
+    char input_buffer[1024];
+    GetWindowText(hwndInputVal, input_buffer, sizeof(input_buffer));
+    int count = 1+atoi(input_buffer);//30 + rand() % 10; 
     
     strcpy(buffer, "");
     for(int i = 0; i < count; i++) {
@@ -179,6 +186,7 @@ void GenerateRandomList(HWND hwnd) {
 }
 
 int ValidateInput(const char* input) {
+    return 1;
     if (!input || !*input) return 0;
     
     int in_number = 0;
@@ -223,12 +231,12 @@ void SortList(HWND hwnd) {
         return;
     }
 
-    int temp_arr[256];
+    int *temp_arr = malloc(1001*sizeof(int));
     for(int i = 0; i < n; i++) {
         temp_arr[i] = arr[i];
     }
 
-    int iterations = 0;
+    double iterations = 0;
     int selected = (int)SendMessage(hwndCombo, CB_GETCURSEL, 0, 0);
     
     switch(selected) {
@@ -248,7 +256,7 @@ void SortList(HWND hwnd) {
             iterations = selection_sort_count(temp_arr, n);
             break;
     }
-
+    
     char output_buffer[2048] = "";
     for(int i = 0; i < n; i++) {
         char num_str[16];
@@ -256,10 +264,9 @@ void SortList(HWND hwnd) {
         strcat(output_buffer, num_str);
         if(i < n - 1) strcat(output_buffer, " ");
     }
-    
     SetWindowText(hwndOutput, output_buffer);
-    
     char iter_str[32];
     sprintf(iter_str, "%d", iterations);
     SetWindowText(hwndIterations, iter_str);
+    free(temp_arr);
 }
