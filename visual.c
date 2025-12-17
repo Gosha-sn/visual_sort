@@ -7,15 +7,18 @@
 
 #define ID_COMBO_SORT 100
 #define ID_INPUT 101
-#define ID_GENERATE 102
-#define ID_SORT 103
-#define ID_OUTPUT 104
-#define ID_ITERATIONS 105
+#define ID_INPUT_VAL 102
+#define ID_GENERATE 103
+#define ID_SORT 104
+#define ID_OUTPUT 105
+#define ID_TIME 106
+#define ID_STATUS 107
 
 HINSTANCE hInst;
-HWND hwndCombo, hwndInput,hwndInputVal, hwndOutput, hwndIterations;
+HWND hwndCombo, hwndInput, hwndInputVal, hwndOutput, hwndTime, hwndStatus;
 HBRUSH g_hBrush = NULL;
 HBRUSH g_editBrush = NULL;
+HBRUSH g_readonlyBrush = NULL;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void GenerateRandomList(HWND);
@@ -28,6 +31,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     hInst = hInstance;
 
     g_hBrush = CreateSolidBrush(RGB(40, 44, 52));
+    g_readonlyBrush = CreateSolidBrush(RGB(50, 55, 65));
 
     WNDCLASSEX wc = {0};
     wc.cbSize = sizeof(WNDCLASSEX);
@@ -44,7 +48,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
         szClassName,
         "Sorting Algorithm Visualizer",
         WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 600, 450,
+        CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
         NULL, NULL, hInstance, NULL
     );
 
@@ -77,16 +81,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
             hwndInput = CreateWindow(
                 "EDIT", "",
-                WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
-                220, 10, 350, 25,
+                WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_WANTRETURN,
+                220, 10, 550, 100,
                 hwnd, (HMENU)ID_INPUT, hInst, NULL
             );
+            
             hwndInputVal = CreateWindow(
                 "EDIT", "",
                 WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
-                220, 40, 100, 25,
-                hwnd, (HMENU)ID_INPUT, hInst, NULL
+                330, 120, 100, 25,
+                hwnd, (HMENU)ID_INPUT_VAL, hInst, NULL
             );
+            
+            CreateWindow(
+                "STATIC", "Count:",
+                WS_CHILD | WS_VISIBLE,
+                270, 120, 60, 25,
+                hwnd, NULL, hInst, NULL
+            );
+
             CreateWindow(
                 "BUTTON", "Generate",
                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
@@ -104,22 +117,36 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
             hwndOutput = CreateWindow(
                 "EDIT", "",
                 WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
-                10, 110, 560, 250,
+                10, 160, 760, 350,
                 hwnd, (HMENU)ID_OUTPUT, hInst, NULL
             );
             
             CreateWindow(
-                "STATIC", "Iterations:",
+                "STATIC", "Execution Time (ms):",
                 WS_CHILD | WS_VISIBLE,
-                10, 80, 100, 20,
+                10, 520, 120, 20,
                 hwnd, NULL, hInst, NULL
             );
             
-            hwndIterations = CreateWindow(
+            hwndTime = CreateWindow(
                 "EDIT", "",
                 WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_READONLY,
-                110, 80, 100, 20,
-                hwnd, (HMENU)ID_ITERATIONS, hInst, NULL
+                130, 520, 100, 20,
+                hwnd, (HMENU)ID_TIME, hInst, NULL
+            );
+            
+            CreateWindow(
+                "STATIC", "Status:",
+                WS_CHILD | WS_VISIBLE,
+                240, 520, 60, 20,
+                hwnd, NULL, hInst, NULL
+            );
+            
+            hwndStatus = CreateWindow(
+                "EDIT", "",
+                WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_READONLY,
+                300, 520, 470, 20,
+                hwnd, (HMENU)ID_STATUS, hInst, NULL
             );
             break;
         }
@@ -133,16 +160,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
             HDC hdc = (HDC)wParam;
             HWND hwndCtl = (HWND)lParam;
 
-            if (hwndCtl == hwndInput || hwndCtl == hwndOutput || hwndCtl == hwndIterations) {
+            if (hwndCtl == hwndInput || hwndCtl == hwndOutput) {
                 SetTextColor(hdc, RGB(220, 220, 220));
                 SetBkColor(hdc, RGB(60, 65, 75));
                 if (!g_editBrush) g_editBrush = CreateSolidBrush(RGB(60, 65, 75));
                 return (INT_PTR)g_editBrush;
-            } else if (hwndCtl == GetDlgItem(GetParent(hwndCtl), ID_ITERATIONS)) {
+            } else if (hwndCtl == hwndTime || hwndCtl == hwndStatus || hwndCtl == hwndInputVal) {
                 SetTextColor(hdc, RGB(220, 220, 220));
-                SetBkColor(hdc, RGB(60, 65, 75));
-                if (!g_editBrush) g_editBrush = CreateSolidBrush(RGB(60, 65, 75));
-                return (INT_PTR)g_editBrush;
+                SetBkColor(hdc, RGB(50, 55, 65));
+                if (!g_readonlyBrush) g_readonlyBrush = CreateSolidBrush(RGB(50, 55, 65));
+                return (INT_PTR)g_readonlyBrush;
             }
             break;
         }
@@ -159,6 +186,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
         case WM_DESTROY:
             if (g_hBrush) DeleteObject(g_hBrush);
             if (g_editBrush) DeleteObject(g_editBrush);
+            if (g_readonlyBrush) DeleteObject(g_readonlyBrush);
             PostQuitMessage(0);
             break;
             
@@ -169,24 +197,48 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 }
 
 void GenerateRandomList(HWND hwnd) {
-    char buffer[256];
     char input_buffer[1024];
     GetWindowText(hwndInputVal, input_buffer, sizeof(input_buffer));
-    int count = 1+atoi(input_buffer);//30 + rand() % 10; 
     
-    strcpy(buffer, "");
-    for(int i = 0; i < count; i++) {
-        char num_str[16];
-        sprintf(num_str, "%d", rand() % 100); 
-        strcat(buffer, num_str);
-        if(i < count - 1) strcat(buffer, " ");
+    long long count = 1;
+    if (input_buffer[0] != '\0') {
+        count = atoll(input_buffer);
+        if (count <= 0) count = 1;
+        if (count > 1000000) count = 1000000; // ограничение
+    } else {
+        count = 10 + rand() % 10; // случайное значение по умолчанию
     }
     
+    int *numbers = malloc(count * sizeof(int));
+    // Более быстрая генерация случайных чисел
+    for(long long i = 0; i < count; i++) {
+        numbers[i] = rand() % 1000;
+    }
+    
+    // Более эффективное формирование строки
+    char *buffer = malloc((count * 8 + count - 1 + 1) * sizeof(char));
+    char *ptr = buffer;
+    
+    for(long long i = 0; i < count; i++) {
+        ptr += sprintf(ptr, "%d", numbers[i]);
+        if(i < count - 1) {
+            *ptr = ' ';
+            ptr++;
+        }
+    }
+    *ptr = '\0';
+    
     SetWindowText(hwndInput, buffer);
+    
+    char status_str[64];
+    sprintf(status_str, "Generated %lld numbers", count);
+    SetWindowText(hwndStatus, status_str);
+    
+    free(numbers);
+    free(buffer);
 }
 
 int ValidateInput(const char* input) {
-    return 1;
     if (!input || !*input) return 0;
     
     int in_number = 0;
@@ -210,63 +262,100 @@ int ValidateInput(const char* input) {
 }
 
 void SortList(HWND hwnd) {
-    char input_buffer[1024];
+    char input_buffer[1024 * 100]; // Увеличенный буфер для 1000000 чисел
     GetWindowText(hwndInput, input_buffer, sizeof(input_buffer));
     
     if (!ValidateInput(input_buffer)) {
-        MessageBox(hwnd, "Invalid input! Please enter only numbers separated by spaces.", "Error", MB_OK | MB_ICONERROR);
+        MessageBox(hwnd, "Invalid input! ", "Error", MB_OK | MB_ICONERROR);
         return;
     }
 
-    int arr[256];
-    int n = 0;
-    char *token = strtok(input_buffer, " ");
-    while(token != NULL && n < 256) {
-        arr[n++] = atoi(token);
+    long long n = 0;
+    char *temp_input = malloc(strlen(input_buffer) + 1);
+    strcpy(temp_input, input_buffer);
+    
+    char *token = strtok(temp_input, " ");
+    while(token != NULL) {
+        n++;
         token = strtok(NULL, " ");
     }
     
     if (n == 0) {
         MessageBox(hwnd, "No valid numbers found!", "Error", MB_OK | MB_ICONERROR);
+        free(temp_input);
         return;
     }
 
-    int *temp_arr = malloc(1001*sizeof(int));
-    for(int i = 0; i < n; i++) {
-        temp_arr[i] = arr[i];
+    if (n > 1000000) {
+        MessageBox(hwnd, "More than 1 000 000", "Error", MB_OK | MB_ICONERROR);
+        free(temp_input);
+        return;
     }
 
-    double iterations = 0;
+    int *arr = malloc(n * sizeof(int));
+    int *temp_arr = malloc(n * sizeof(int));
+    
+    strcpy(temp_input, input_buffer);
+    token = strtok(temp_input, " ");
+    long long idx = 0;
+    while(token != NULL && idx < n) {
+        arr[idx] = atoi(token);
+        temp_arr[idx] = arr[idx];
+        idx++;
+        token = strtok(NULL, " ");
+    }
+    
+    SetWindowText(hwndStatus, "Sorting...");
+    UpdateWindow(hwndStatus);
+    
+    clock_t start_time = clock();
+    
     int selected = (int)SendMessage(hwndCombo, CB_GETCURSEL, 0, 0);
     
     switch(selected) {
         case 0: 
-            iterations = merge_sort_count(temp_arr, 0, n - 1);
+            merge_sort_count(temp_arr, 0, n - 1);
             break;
         case 1: 
-            iterations = quicksort_count(temp_arr, 0, n - 1);
+            quicksort_count(temp_arr, 0, n - 1);
             break;
         case 2:
-            iterations = bubble_sort_count(temp_arr, n);
+            bubble_sort_count(temp_arr, n);
             break;
         case 3: 
-            iterations = insertion_sort_count(temp_arr, n);
+            insertion_sort_count(temp_arr, n);
             break;
         case 4: 
-            iterations = selection_sort_count(temp_arr, n);
+            selection_sort_count(temp_arr, n);
             break;
     }
     
-    char output_buffer[2048] = "";
-    for(int i = 0; i < n; i++) {
-        char num_str[16];
-        sprintf(num_str, "%d", temp_arr[i]);
-        strcat(output_buffer, num_str);
-        if(i < n - 1) strcat(output_buffer, " ");
+    clock_t end_time = clock();
+    double execution_time = ((double)(end_time - start_time)) / CLOCKS_PER_SEC * 1000.0; // в миллисекундах
+    
+    char *output_buffer = malloc((n * 8 + n - 1 + 1) * sizeof(char));
+    char *out_ptr = output_buffer;
+    
+    for(long long i = 0; i < n; i++) {
+        out_ptr += sprintf(out_ptr, "%d", temp_arr[i]);
+        if(i < n - 1) {
+            *out_ptr = ' ';
+            out_ptr++;
+        }
     }
+    *out_ptr = '\0';
+    
     SetWindowText(hwndOutput, output_buffer);
-    char iter_str[32];
-    sprintf(iter_str, "%d", iterations);
-    SetWindowText(hwndIterations, iter_str);
+    char time_str[32];
+    sprintf(time_str, "%.2f", execution_time);
+    SetWindowText(hwndTime, time_str);
+    
+    char status_str[128];
+    sprintf(status_str, "Sorted %lld numbers in %.2f ms", n, execution_time);
+    SetWindowText(hwndStatus, status_str);
+    
+    free(arr);
     free(temp_arr);
+    free(temp_input);
+    free(output_buffer);
 }
